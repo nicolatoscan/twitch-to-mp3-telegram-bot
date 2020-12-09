@@ -8,6 +8,7 @@ const urlPattern = new RegExp('^(https?:\\/\\/)?' + // protocol
     '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
     '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
     '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*');
+const allowedUsers = process.env.ALLOWED_USERS?.split(',') ?? [];
 
 const bot = new Telegraf(process.env.BOT_TOKEN ?? '');
 bot.command('ping', ctx => ctx.reply('pong!'));
@@ -16,11 +17,11 @@ bot.launch();
 console.log('Bot twitch-to-mp3 started!');
 
 async function onMessage(ctx: Context) {
-    if (ctx.chat?.username === 'nicolatoscan') {
+    if (ctx.chat?.username && allowedUsers.includes(ctx.chat.username)) {
         const msgs = ctx.message?.text?.split(' ') ?? [];
         if (msgs.length >= 1 && urlPattern.test(msgs[0])) {
             const url = msgs[0];
-            ctx.reply('OK');
+            await ctx.reply('OK');
             saveAndSend(ctx.chat.id, url);
         }
     }
