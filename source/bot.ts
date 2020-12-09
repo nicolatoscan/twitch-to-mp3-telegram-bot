@@ -1,7 +1,6 @@
 import * as dotenv from 'dotenv';
 import { Telegraf, Context } from 'telegraf';
 import { execSync } from 'child_process';
-import * as path from 'path';
 import * as fs from 'fs';
 dotenv.config();
 
