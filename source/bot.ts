@@ -60,7 +60,7 @@ async function onMessage(ctx: Context) {
                 await ctx.reply('File too large (probably)');
             }
 
-            // execSync(`rm -rf ${myCounter}`, { cwd: 'download' });
+            execSync(`rm -rf ${myCounter}`, { cwd: 'download' });
             await ctx.reply('Done');
         }
     }
