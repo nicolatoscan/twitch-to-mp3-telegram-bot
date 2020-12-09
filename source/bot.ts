@@ -15,6 +15,7 @@ bot.launch();
 console.log("Bot started!");
 
 function middleware(): void {
+    bot.command("ping", ctx => ctx.reply('pong!'));
     bot.on("message", ctx => onMessage(ctx));
 }
 
