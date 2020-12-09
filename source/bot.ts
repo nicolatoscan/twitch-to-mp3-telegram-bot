@@ -10,13 +10,13 @@ const urlPattern = new RegExp('^(https?:\\/\\/)?' + // protocol
     '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*');
 
 const bot = new Telegraf(process.env.BOT_TOKEN ?? '');
-bot.command("ping", ctx => ctx.reply('pong!'));
-bot.on("message", ctx => onMessage(ctx));
+bot.command('ping', ctx => ctx.reply('pong!'));
+bot.on('message', ctx => onMessage(ctx));
 bot.launch();
-console.log("Bot started!");
+console.log('Bot twitch-to-mp3 started!');
 
 async function onMessage(ctx: Context) {
-    if (ctx.chat?.username === "nicolatoscan") {
+    if (ctx.chat?.username === 'nicolatoscan') {
         const msgs = ctx.message?.text?.split(' ') ?? [];
         if (msgs.length >= 1 && urlPattern.test(msgs[0])) {
             const url = msgs[0];
