@@ -1,0 +1,1 @@
+requires https://github.com/ihabunek/twitch-dl and ffmpeg
