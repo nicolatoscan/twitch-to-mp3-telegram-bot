@@ -10,58 +10,59 @@ const urlPattern = new RegExp('^(https?:\\/\\/)?' + // protocol
     '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*');
 
 const bot = new Telegraf(process.env.BOT_TOKEN ?? '');
-middleware();
+bot.command("ping", ctx => ctx.reply('pong!'));
+bot.on("message", ctx => onMessage(ctx));
 bot.launch();
 console.log("Bot started!");
 
-function middleware(): void {
-    bot.command("ping", ctx => ctx.reply('pong!'));
-    bot.on("message", ctx => onMessage(ctx));
-}
-
-let counter = 0;
 async function onMessage(ctx: Context) {
     if (ctx.chat?.username === "nicolatoscan") {
         const msgs = ctx.message?.text?.split(' ') ?? [];
         if (msgs.length >= 1 && urlPattern.test(msgs[0])) {
-            const myCounter = ++counter;
-
             const url = msgs[0];
-            await ctx.reply('Downloading ...');
-            execSync(`rm -rf ${myCounter}`, { cwd: 'download' });
-            execSync(`mkdir -p ${myCounter}`, { cwd: 'download' });
-            execSync(`mkdir -p ${myCounter}/res`, { cwd: 'download' });
-            execSync(`twitch-dl download -q 160p ${url}`, { cwd: `download/${myCounter}` });
-
-            const files = fs.readdirSync(`download/${myCounter}`);
-
-            if (files.length < 1) {
-                await ctx.reply('Error downlaod');
-                return;
-            }
-
-            await ctx.reply('Parsing ...');
-            const filename = files[0];
-            const outFilename = `${filename.split('.')[0]}.mp3`;
-            execSync(`ffmpeg -i ${filename} -vn -f mp3 -ab 128000 ${outFilename}`, { cwd: `download/${myCounter}` });
-
-            await ctx.reply('Splitting ...');
-            execSync(`ffmpeg -i ${outFilename} -f segment -segment_time 1800 -c copy res/%03d-${outFilename}`, { cwd: `download/${myCounter}` });
-
-            await ctx.reply('Uploading ...');
-            try {
-                for (const f of fs.readdirSync(`download/${myCounter}/res`)) {
-                    await ctx.replyWithDocument({
-                        source: await fs.readFileSync(`download/${myCounter}/res/${f}`),
-                        filename: f
-                    });
-                }
-            } catch {
-                await ctx.reply('File too large (probably)');
-            }
-
-            execSync(`rm -rf ${myCounter}`, { cwd: 'download' });
-            await ctx.reply('Done');
+            ctx.reply('OK');
+            saveAndSend(ctx.chat.id, url);
         }
     }
+}
+
+let counter = 0;
+async function saveAndSend(chatId: number, url: string) {
+    const myCounter = ++counter;
+
+    await bot.telegram.sendMessage(chatId, 'Downloading ...');
+    execSync(`rm -rf ${myCounter}`, { cwd: 'download' });
+    execSync(`mkdir -p ${myCounter}`, { cwd: 'download' });
+    execSync(`mkdir -p ${myCounter}/res`, { cwd: 'download' });
+    execSync(`twitch-dl download -q 160p ${url}`, { cwd: `download/${myCounter}` });
+
+    const files = fs.readdirSync(`download/${myCounter}`);
+
+    if (files.length < 1) {
+        await bot.telegram.sendMessage(chatId, 'Error downlaod');
+        return;
+    }
+
+    await bot.telegram.sendMessage(chatId, 'Parsing ...');
+    const filename = files[0];
+    const outFilename = `${filename.split('.')[0]}.mp3`;
+    execSync(`ffmpeg -i ${filename} -vn -f mp3 -ab 128000 ${outFilename}`, { cwd: `download/${myCounter}` });
+
+    await bot.telegram.sendMessage(chatId, 'Splitting ...');
+    execSync(`ffmpeg -i ${outFilename} -f segment -segment_time 1800 -c copy res/%03d-${outFilename}`, { cwd: `download/${myCounter}` });
+
+    await bot.telegram.sendMessage(chatId, 'Uploading ...');
+    try {
+        for (const f of fs.readdirSync(`download/${myCounter}/res`)) {
+            await bot.telegram.sendDocument(chatId, {
+                source: await fs.readFileSync(`download/${myCounter}/res/${f}`),
+                filename: f
+            });
+        }
+    } catch {
+        await bot.telegram.sendMessage(chatId, 'File too large (probably)');
+    }
+
+    execSync(`rm -rf ${myCounter}`, { cwd: 'download' });
+    await bot.telegram.sendMessage(chatId, 'Done');
 }
