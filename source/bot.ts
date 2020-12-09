@@ -29,6 +29,7 @@ async function onMessage(ctx: Context) {
 let counter = 0;
 async function saveAndSend(chatId: number, url: string) {
     const myCounter = ++counter;
+    console.log(`Starting ${myCounter}`);
 
     await bot.telegram.sendMessage(chatId, 'Downloading ...');
     execSync(`rm -rf ${myCounter}`, { cwd: 'download' });
@@ -64,5 +65,6 @@ async function saveAndSend(chatId: number, url: string) {
     }
 
     execSync(`rm -rf ${myCounter}`, { cwd: 'download' });
+    console.log(`Completed ${myCounter}`);
     await bot.telegram.sendMessage(chatId, 'Done');
 }
