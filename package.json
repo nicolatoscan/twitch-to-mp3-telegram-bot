@@ -7,7 +7,7 @@
     "serve": "npm run transpile && npm run start",
     "start": "node dist/bot",
     "transpile": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstall": "npm run transpile"
   },
   "author": "",
   "license": "ISC",
