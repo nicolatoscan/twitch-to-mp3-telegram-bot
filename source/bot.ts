@@ -4,10 +4,7 @@ import { execSync } from 'child_process';
 import * as fs from 'fs';
 dotenv.config();
 
-const urlPattern = new RegExp('^(https?:\\/\\/)?' + // protocol
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*');
+const urlPattern = /^(https?:\/\/)?(www\.)?twitch\.tv(\/[-a-z\d%_.~+]*)*/;
 const allowedUsers = process.env.ALLOWED_USERS?.split(',') ?? [];
 
 const bot = new Telegraf(process.env.BOT_TOKEN ?? '');
